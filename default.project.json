@@ -19,11 +19,6 @@
         "$path": "src/client"
       }
     },
-    "ServerStorage": {
-      "Packages": {
-        "$path": "ServerPackages"
-      }
-    },
     "ReplicatedFirst": {
       "$path": "src/replicatedFirst"
     }
