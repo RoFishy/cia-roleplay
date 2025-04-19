@@ -2,12 +2,12 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
--- //  Packages
-local Packages = ReplicatedStorage.Packages
-local Promise = require(Packages.Promise)
+-- // Modules
+local Modules = ReplicatedStorage:WaitForChild("Modules")
+local GroupUtils = require(Modules.GroupUtils)
 
 -- // Config
-local Config = require(script.Config)
+local Config = require(script.Parent.Config)
 
 -- // TweenInfo
 local IconTween = TweenInfo.new(0.3, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
@@ -19,31 +19,10 @@ local Overhead : Folder = Assets.Overhead
 local Icons = Overhead.Icons
 local ProfileTemplate : BillboardGui = Overhead.Profile
 
--- // Local Functions
-local function IsPlayerInGroup(Player : Player)
-    return Promise.new(function(resolve)
-        resolve(Player:IsInGroup(Config.GroupId))
-    end)
-end
-
-local function GetRoleInGroup(Player : Player)
-    return Promise.new(function(resolve)
-        resolve(Player:GetRoleInGroup(Config.GroupId))
-    end)
-end
-
-local function GetRankInGroup(Player : Player)
-    return Promise.new(function(resolve)
-        resolve(Player:GetRankInGroup(Config.GroupId))
-    end)
-end
-
 -- // Util
-local OverheadUtil = {
-    Players = {}
-}
+local OverheadUtil = {}
 
-function OverheadUtil:CreateOverhead(Player : Player)
+function OverheadUtil:CreateOverhead(Player : Player, IconsToAdd : {string}?)
     local Character = Player.Character or Player.CharacterAdded:Wait()
 
     local OverheadClone = ProfileTemplate:Clone()
@@ -63,9 +42,9 @@ function OverheadUtil:CreateOverhead(Player : Player)
 
     NameShadow.Text = NameLabel.Text
 
-    IsPlayerInGroup(Player):andThen(function(InGroup)
+    GroupUtils:IsPlayerInGroup(Player):andThen(function(InGroup)
         if InGroup then
-            GetRoleInGroup(Player):andThen(function(Role)
+            GroupUtils:GetRoleInGroup(Player):andThen(function(Role)
                 if Config.RankCase == "Upper" then
                     Role = Role:upper()
                 elseif Config.RankCase == "Lower" then
@@ -82,17 +61,13 @@ function OverheadUtil:CreateOverhead(Player : Player)
         RankLabel.TextColor3 = Player.Team and Player.TeamColor.Color or Color3.fromRGB(255, 255, 255)
     end):catch(warn)
 
-    if table.find(self.Players, Player) then
-        for _, Icon in self.Players[Player].Icons do
+    if IconsToAdd then
+        for _, Icon in IconsToAdd do
             self:AddIcon(Player, Icon)
         end
-    else
-        self.Players[Player.Name] = {
-            Icons = {}
-        }
     end
 
-    GetRankInGroup(Player):andThen(function(Rank)
+    GroupUtils:GetRankInGroup(Player):andThen(function(Rank)
         if Rank == Config.DeveloperRank then
             self:AddIcon(Player, "Developer")
         end
@@ -105,8 +80,6 @@ end
 
 function OverheadUtil:AddIcon(Player : Player, IconName : string)
     local Icon = Icons:FindFirstChild(IconName)
-    assert(Icon, "Icon not found")
-    table.insert(self.Players[Player.Name].Icons, IconName)
 
     local Character = Player.Character or Player.CharacterAdded:Wait()
     local Head = Character.Head
@@ -125,24 +98,19 @@ function OverheadUtil:AddIcon(Player : Player, IconName : string)
 end
 
 function OverheadUtil:RemoveIcon(Player : Player, IconName : string)
-    if table.find(self.Players[Player.Name].Icons, IconName) then
-        table.remove(self.Players[Player.Name].Icons, table.find(self.Players[Player.Name].Icons, IconName))
-        local Character = Player.Character or Player.CharacterAdded:Wait()
-        local Head = Character.Head
+    local Character = Player.Character or Player.CharacterAdded:Wait()
+    local Head = Character.Head
 
-        local PlayerOverhead = Head:FindFirstChild("Profile")
+    local PlayerOverhead = Head:FindFirstChild("Profile")
 
-        local IconsHolder = PlayerOverhead.Icons
-        local Icon = IconsHolder:FindFirstChild(IconName)
+    local IconsHolder = PlayerOverhead.Icons
+    local Icon = IconsHolder:FindFirstChild(IconName)
 
-        if Icon then
-            TweenService:Create(Icon, IconTween, {ImageTransparency = 1}):Play()
-            TweenService:Create(Icon.Shadow, IconTween, {ImageTransparency = 1}):Play()
-            task.wait(.3)
-            Icon:Destroy()
-        end
-    else
-        warn(`Icon {IconName} not found for {Player.Name}`)
+    if Icon then
+        TweenService:Create(Icon, IconTween, {ImageTransparency = 1}):Play()
+        TweenService:Create(Icon.Shadow, IconTween, {ImageTransparency = 1}):Play()
+        task.wait(.3)
+        Icon:Destroy()
     end
 end
 

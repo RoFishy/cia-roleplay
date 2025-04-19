@@ -4,22 +4,24 @@ local Players = game:GetService("Players")
 -- // Utils
 local Utils = script.Utils
 local DataUtil = require(Utils.DataUtil)
-local OverheadUtil = require(Utils.OverheadUtil)
 local TeamUtil = require(Utils.TeamUtil)
+
+-- // Server Utils
+local ServerUtils = script.Parent.Parent.Utils
+local Signals = require(ServerUtils.Signals)
+
+local PlayerAdded = Signals.PlayerAdded
+local PlayerRemoving = Signals.PlayerRemoving
 
 -- // PlayerHandler
 local PlayerHandler = {}
 
 function PlayerHandler:Start()
-    Players.PlayerAdded:Connect(function(player : Player)
+    PlayerAdded:Connect(function(player)
         TeamUtil:AssignTeam(player) 
         DataUtil:CreateProfile(player)
-        OverheadUtil:CreateOverhead(player)
-        player.CharacterAdded:Connect(function(_)
-            OverheadUtil:CreateOverhead(player)
-        end)
     end)
-    Players.PlayerRemoving:Connect(function(player)
+    PlayerRemoving:Connect(function(player)
         DataUtil:EndSession(player)
     end)
 

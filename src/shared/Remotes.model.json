@@ -1,0 +1,23 @@
+{
+    "ClassName": "Folder",
+    "Children": [
+        {
+            "Name": "PlayerRemotes",
+            "ClassName": "Folder",
+            "Children": [
+                {
+                    "Name": "CreateOverhead",
+                    "ClassName": "RemoteEvent"
+                },
+                {
+                    "Name": "AddIcon",
+                    "ClassName": "RemoteEvent"
+                },
+                {
+                    "Name": "RemoveIcon",
+                    "ClassName": "RemoteEvent"
+                }
+            ]
+        }
+    ]
+}
