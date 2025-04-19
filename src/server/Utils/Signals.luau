@@ -10,5 +10,5 @@ return {
     PlayerRemoving = Signal.new(),
 
     AddIcon = Signal.new(),
-    RemoveIcon = Signal.new(),
+    RemoveIcon = Signal.new()
 }

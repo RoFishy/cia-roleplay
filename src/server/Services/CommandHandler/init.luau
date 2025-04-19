@@ -5,6 +5,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Modules = ReplicatedStorage.Modules
 local GroupUtils = require(Modules.GroupUtils)
 
+local CommandLogger = require(script.Logging)
+
 -- // Utils
 local Utils = script.Parent.Parent.Utils
 local Signals = require(Utils.Signals)
@@ -28,6 +30,8 @@ function CommandHandler:Start()
                     table.remove(Args, 1)
                     if CommandName:split("")[1] == Config.Prefix then
                         Commands[CommandName:sub(2):lower()](Args)
+
+                        CommandLogger:LogCommand(Player, CommandName, Args)
                     end
                 end)
             end
