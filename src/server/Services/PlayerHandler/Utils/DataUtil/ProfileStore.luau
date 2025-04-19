@@ -1,3 +1,7 @@
+--# selene: allow(unused_variable)
+--# selene: allow(shadowing)
+--# selene: allow(multiple_statements)
+--# selene: allow(manual_table_clone)
 --[[
 MAD STUDIO (by loleris)
 
